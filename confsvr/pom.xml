@@ -27,6 +27,7 @@
     </dependencies>
   </dependencyManagement>
 
+    <!-- Spring Cloud Config 服务器 -->
   <dependencies>
     <dependency>
       <groupId>org.springframework.cloud</groupId>

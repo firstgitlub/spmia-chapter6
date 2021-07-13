@@ -27,6 +27,7 @@
     </dependencies>
   </dependencyManagement>
 
+    <!-- 使用 Eureka 的 Spring Cloud 服务 -->
   <dependencies>
     <dependency>
       <groupId>org.springframework.cloud</groupId>

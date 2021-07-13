@@ -27,6 +27,8 @@
     </dependencies>
   </dependencyManagement>
 
+
+    <!-- EagleEye 的组织 服务 -->
   <dependencies>
     <dependency>
       <groupId>org.springframework.boot</groupId>

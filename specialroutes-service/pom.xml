@@ -27,6 +27,7 @@
     </dependencies>
   </dependencyManagement>
 
+    <!-- A/B 路由服务 -->
   <dependencies>
     <dependency>
       <groupId>org.springframework.boot</groupId>
