@@ -10,14 +10,17 @@ logging:
 
 eureka:
   instance:
-    preferIpAddress: true
+    preferIpAddress: true  #ip交互
   client:
-    registerWithEureka: true
+    registerWithEureka: true  #网关服务器本地缓存 对 服务存活实例
     fetchRegistry: true
     serviceUrl:
-        defaultZone: http://localhost:8761/eureka/
+        defaultZone: http://localhost:8761/eureka/  #Eureka服务发现地址
 
 zuul:
-  prefix:  /api
+  prefix:  /api  #设置网关服务前缀
   routes:
-  organizationservice: /organization/**
+  organizationservice: /organization/**  #手动指定路由的服务前缀，但是服务在注册中心中的 服务ID还是同一个
+
+  #通过调用网关服务的这个地址 可以查看代理的服务列表  http://xxxxx:xx/routes
+  # 可以通过 ignored-services 排除需要的服务映射  如果要排除所有基于Eureka的路由 ，将值设置为 *

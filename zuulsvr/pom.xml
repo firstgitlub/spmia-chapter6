@@ -27,7 +27,7 @@
     </dependencies>
   </dependencyManagement>
 
-  <!-- EagleEye 的 Zuul 服务 -->
+  <!-- 告诉spring cloud框架，引入 Zuul 相关jar -->
   <dependencies>
     <dependency>
       <groupId>org.springframework.cloud</groupId>

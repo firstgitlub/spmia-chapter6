@@ -40,6 +40,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+// ZuulFilter 主要是在客户端请求到达网关服务器的时候 进行请求的转发，里面可以做一些额外的 如安全 日志等功能处理
+// 过滤器是分 前置过滤器  后置过滤器  路由过滤器
+// 路由过滤器
 @Component
 public class SpecialRoutesFilter extends ZuulFilter {
     private static final int FILTER_ORDER =  1;
@@ -71,6 +74,7 @@ public class SpecialRoutesFilter extends ZuulFilter {
     private AbTestingRoute getAbRoutingInfo(String serviceName){
         ResponseEntity<AbTestingRoute> restExchange = null;
         try {
+            // 使用带有Ribbon功能的 RestTemplate 请求方式 获取服务注册中心的中的服务
             restExchange = restTemplate.exchange(
                              "http://specialroutesservice/v1/route/abtesting/{serviceName}",
                              HttpMethod.GET,
@@ -193,11 +197,15 @@ public class SpecialRoutesFilter extends ZuulFilter {
 
 
 
+    //判断路由是否需要特殊处理
     public boolean useSpecialRoute(AbTestingRoute testRoute){
         Random random = new Random();
 
+        // 检查路由是否为 活跃 状态
         if (testRoute.getActive().equals("N")) return false;
 
+        // 这种是什么算法   算法是需要加强的
+        // 确定是否应该 使用 替代服务路由
         int value = random.nextInt((10 - 1) + 1) + 1;
 
         if (testRoute.getWeight()<value) return true;
@@ -207,11 +215,13 @@ public class SpecialRoutesFilter extends ZuulFilter {
 
     @Override
     public Object run() {
+        // 这个肯定是从 Servlet容器请求中进行转发过来的
         RequestContext ctx = RequestContext.getCurrentContext();
 
         AbTestingRoute abTestRoute = getAbRoutingInfo( filterUtils.getServiceId() );
 
         if (abTestRoute!=null && useSpecialRoute(abTestRoute)) {
+
             String route = buildRouteString(ctx.getRequest().getRequestURI(),
                     abTestRoute.getEndpoint(),
                     ctx.get("serviceId").toString());
@@ -221,15 +231,26 @@ public class SpecialRoutesFilter extends ZuulFilter {
         return null;
     }
 
+    // 跳转到指定路由地址进行远程RPC调用
     private void forwardToSpecialRoute(String route) {
         RequestContext context = RequestContext.getCurrentContext();
         HttpServletRequest request = context.getRequest();
 
+        /**
+         * 创建 将发送 到服务的所有HTTP 请求首部的副本
+         */
         MultiValueMap<String, String> headers = this.helper
                 .buildZuulRequestHeaders(request);
+
+        /**
+         * 创建所有HTTP 请求参数的副本
+         */
         MultiValueMap<String, String> params = this.helper
                 .buildZuulRequestQueryParams(request);
         String verb = getVerb(request);
+        /**
+         * 创建将被转发到替代服务的HTTP主体的副本
+         */
         InputStream requestEntity = getRequestBody(request);
         if (request.getContentLength() < 0) {
             context.setChunkedRequestBody();
@@ -241,8 +262,15 @@ public class SpecialRoutesFilter extends ZuulFilter {
 
         try {
             httpClient  = HttpClients.createDefault();
+            /**
+             * 使用forward() 辅助方法 调用 替代服务
+             */
             response = forward(httpClient, verb, route, request, headers,
                     params, requestEntity);
+
+            /**
+             * 通过 setResponse()辅助方法 将服务调用的 结果保存回Zuul 服务器
+             */
             setResponse(response);
         }
         catch (Exception ex ) {

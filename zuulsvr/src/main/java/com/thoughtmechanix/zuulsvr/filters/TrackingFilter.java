@@ -7,6 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+// 和 SpecialRoutesFilter 应该组成的是 过滤器链，典型的责任链模式
+// 这个就是前置过滤器
 @Component
 public class TrackingFilter extends ZuulFilter{
     private static final int      FILTER_ORDER =  1;
@@ -38,6 +40,7 @@ public class TrackingFilter extends ZuulFilter{
       return false;
     }
 
+    // 这个就是使用UUID 随机生成的
     private String generateCorrelationId(){
         return java.util.UUID.randomUUID().toString();
     }

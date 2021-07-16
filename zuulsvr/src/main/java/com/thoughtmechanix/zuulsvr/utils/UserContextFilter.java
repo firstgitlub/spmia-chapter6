@@ -13,10 +13,13 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
+// 将从HTTP首部中检索关联ID  并将它存储在 UserContext对象中  后期的业务逻辑处理中 可以使用这里面存的值
 @Component
 public class UserContextFilter implements Filter {
     private static final Logger logger = LoggerFactory.getLogger(UserContextFilter.class);
 
+    // 这里实现的 Filter 是 servlet级别，当请求从容器到应用程序处理之前进行 过滤器的处理
+    // 拦截传入的 HTTP 请求
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
